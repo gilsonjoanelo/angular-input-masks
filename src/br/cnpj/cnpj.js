@@ -5,14 +5,14 @@ var BrV = require('br-validations');
 
 var maskFactory = require('../../helpers/mask-factory');
 
-var cnpjPattern = new StringMask('00.000.000\/0000-00');
+var cnpjPattern = new StringMask('AA.AAA.AAA\/AAAA-00');
 
 module.exports = maskFactory({
 	clearValue: function(rawValue) {
-		return rawValue.replace(/[^\d]/g, '').slice(0, 14);
+		return rawValue.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
 	},
 	format: function(cleanValue) {
-		return (cnpjPattern.apply(cleanValue) || '').trim().replace(/[^0-9]$/, '');
+		return (cnpjPattern.apply(cleanValue) || '').trim();
 	},
 	validations: {
 		cnpj: function(value) {

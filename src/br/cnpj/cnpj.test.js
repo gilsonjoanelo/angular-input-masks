@@ -22,14 +22,23 @@ describe('ui-br-cnpj-mask', function() {
 		expect(maskedModel.$formatters.length).toBe(model.$formatters.length + 1);
 	});
 
-	it('should format initial model values', function() {
-		var input = TestUtil.compile('<input ng-model="model" ui-br-cnpj-mask>', {
-			model: '13883875000120'
-		});
+	it('should format initial numeric model values', function() {
+        var input = TestUtil.compile('<input ng-model="model" ui-br-cnpj-mask>', {
+            model: '13883875000120'
+        });
 
-		var model = input.controller('ngModel');
-		expect(model.$viewValue).toBe('13.883.875/0001-20');
-	});
+        var model = input.controller('ngModel');
+        expect(model.$viewValue).toBe('13.883.875/0001-20');
+    });
+
+    it('should format initial alphanumeric model values', function() {
+        var input = TestUtil.compile('<input ng-model="model" ui-br-cnpj-mask>', {
+            model: '6MDP40BD000175' 
+        });
+
+        var model = input.controller('ngModel');
+        expect(model.$viewValue).toBe('6M.DP4.0BD/0001-75');
+    });
 
 	it('should handle corner cases', angular.mock.inject(function($rootScope) {
 		var input = TestUtil.compile('<input ng-model="model" ui-br-cnpj-mask>');
