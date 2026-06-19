@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.5](https://github.com/assisrafael/angular-input-masks/compare/v4.4.4...v4.4.5) (2026-06-19)
+
+
+
 ### [4.4.4](https://github.com/assisrafael/angular-input-masks/compare/v4.4.3...v4.4.4) (2026-06-19)
 
 
