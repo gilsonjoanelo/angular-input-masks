@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.3](https://github.com/assisrafael/angular-input-masks/compare/v4.4.2...v4.4.3) (2026-06-19)
+
+
+### Bug Fixes
+
+* **br:** support Brazilian alphanumeric CNPJ format in masks, filters and validation ([8aaba52](https://github.com/assisrafael/angular-input-masks/commit/8aaba52))
+
+
+
 ### [4.4.2](https://github.com/assisrafael/angular-input-masks/compare/v4.4.1...v4.4.2) (2026-06-17)
 
 
