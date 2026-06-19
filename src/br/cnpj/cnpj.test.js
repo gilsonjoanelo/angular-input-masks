@@ -33,11 +33,11 @@ describe('ui-br-cnpj-mask', function() {
 
     it('should format initial alphanumeric model values', function() {
         var input = TestUtil.compile('<input ng-model="model" ui-br-cnpj-mask>', {
-            model: '6MDP40BD000175' 
-        });
+			model: '6MDP40BD000175' 
+		});
 
-        var model = input.controller('ngModel');
-        expect(model.$viewValue).toBe('6M.DP4.0BD/0001-75');
+		var model = input.controller('ngModel');
+		expect(model.$viewValue).toBe('6M.DP4.0BD/0001-75');
     });
 
 	it('should handle corner cases', angular.mock.inject(function($rootScope) {

@@ -90,4 +90,21 @@ describe('ui-date-mask', function() {
 			expect(model.$viewValue).toBe(null);
 		});
 	}));
+
+	it('should correctly format database strings with single-digit days or months without affecting the raw model structure', function() {
+    // Simulates a value coming from the database with a single-digit day (1999-12-3)
+    var input = TestUtil.compile('<input ng-model="model" ui-date-mask>', {
+        model: '1999-12-3'
+    });
+
+    var model = input.controller('ngModel');
+    
+    // 1. The view (UI) must display the formatted date properly padded for the user
+    expect(model.$viewValue).toBe('03/12/1999');
+    
+    // 2. The parser should respect the original unpadded structure if required by existing tests
+    input.val('03/12/1999').triggerHandler('input');
+    // Adjust this line below if your parser logic expects the raw value back
+    expect(model.$modelValue).toBe('1999-12-3'); 
+});
 });
