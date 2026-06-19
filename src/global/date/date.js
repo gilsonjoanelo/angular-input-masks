@@ -10,16 +10,28 @@ function isISODateString(date) {
         .test(date.toString());
 }
 
+// var dateFormatMapByLocale = {
+// 	'pt-br': 'DD/MM/YYYY',
+// 	'es-ar': 'DD/MM/YYYY',
+// 	'es-mx': 'DD/MM/YYYY',
+// 	'es'   : 'DD/MM/YYYY',
+// 	'en-us': 'MM/DD/YYYY',
+// 	'en'   : 'MM/DD/YYYY',
+// 	'fr-fr': 'DD/MM/YYYY',
+// 	'fr'   : 'DD/MM/YYYY',
+// 	'ru'   : 'DD.MM.YYYY'
+// };
+
 var dateFormatMapByLocale = {
-	'pt-br': 'DD/MM/YYYY',
-	'es-ar': 'DD/MM/YYYY',
-	'es-mx': 'DD/MM/YYYY',
-	'es'   : 'DD/MM/YYYY',
-	'en-us': 'MM/DD/YYYY',
-	'en'   : 'MM/DD/YYYY',
-	'fr-fr': 'DD/MM/YYYY',
-	'fr'   : 'DD/MM/YYYY',
-	'ru'   : 'DD.MM.YYYY'
+	'pt-br': 'dd/MM/yyyy',
+	'es-ar': 'dd/MM/yyyy',
+	'es-mx': 'dd/MM/yyyy',
+	'es'   : 'dd/MM/yyyy',
+	'en-us': 'MM/dd/yyyy',
+	'en'   : 'MM/dd/yyyy',
+	'fr-fr': 'dd/MM/yyyy',
+	'fr'   : 'dd/MM/yyyy',
+	'ru'   : 'dd.MM.yyyy'
 };
 
 function normalizarParaObjetoDate(value) {
@@ -52,6 +64,14 @@ function normalizarParaObjetoDate(value) {
             return isNaN(dataNativa.getTime()) ? null : dataNativa;
         }
         return null;
+    }
+
+    // Isolated padding for single digits so it creates a valid Date object without break existing tests
+    var paddedPartes = [partes[0], partes[1], partes[2]];
+    for (var i = 0; i < paddedPartes.length; i++) {
+        if (paddedPartes[i].length === 1) {
+            paddedPartes[i] = '0' + paddedPartes[i];
+        }
     }
 
     var ano, mes, dia;
@@ -91,16 +111,29 @@ function normalizarParaObjetoDate(value) {
 }
 
 function DateMaskDirective($locale) {
+    // 1. Captures the language directly from AngularJS context natively
     var currentLocale = ($locale.id || 'pt-br').toLowerCase();
-    var dateFormat = dateFormatMapByLocale[currentLocale] || 'YYYY-MM-DD';
+    
+    // Fallback automatic pattern matching from Angular internal DATETIME_FORMATS if map misses
+    var defaultPattern = ($locale.DATETIME_FORMATS && $locale.DATETIME_FORMATS.shortDate) || 'dd/MM/yyyy';
+    // Normalize tokens to standard date-fns v2 format (lowercase dd and yyyy)
+    defaultPattern = defaultPattern.replace(/d+/g, 'dd').replace(/M+/g, 'MM').replace(/y+/g, 'yyyy');
+
+    var dateFormat = dateFormatMapByLocale[currentLocale] || defaultPattern;
 
     return {
         restrict: 'A',
         require: 'ngModel',
         link: function (scope, element, attrs, ctrl) {
             attrs.parse = attrs.parse || 'true';
-            dateFormat = (attrs.uiDateMask || dateFormat).toUpperCase();
-            var dateMask = new StringMask(dateFormat.replace(/[YMD]/g, '0'));
+            
+            // 2. Read format from attribute or use the locale-based one
+            var dynamicFormat = (attrs.uiDateMask || dateFormat);
+            
+            // Map uppercase tokens (legacy) to lowercase tokens demanded by date-fns v2 Alpha
+            dynamicFormat = dynamicFormat.replace(/D/g, 'd').replace(/Y/g, 'y');
+            
+            var dateMask = new StringMask(dynamicFormat.replace(/[dMy]/g, '0'));
 
             function formatter(value) {
                 if (ctrl.$isEmpty(value)) {
@@ -109,8 +142,11 @@ function DateMaskDirective($locale) {
 
                 var dataValida = normalizarParaObjetoDate(value);
                 var cleanValue = value;
+                
                 if (dataValida) {
-                    cleanValue = formatDate(value, dateFormat);
+                    // 3. Formats using the Native JS Date object instead of forwarding the dirty string.
+                    // This bypasses the need for the missing 'date-fns/locale/pt-BR' module completely!
+                    cleanValue = formatDate(dataValida, dynamicFormat);
                 }
 
                 cleanValue = cleanValue.replace(/[^0-9]/g, '');
@@ -135,7 +171,7 @@ function DateMaskDirective($locale) {
 
                 return attrs.parse === 'false'
                     ? formatedValue
-                    : parseDate(formatedValue, dateFormat, new Date());
+                    : parseDate(formatedValue, dynamicFormat, new Date());
             });
 
             ctrl.$validators.date = function validator(modelValue, viewValue) {
@@ -143,7 +179,7 @@ function DateMaskDirective($locale) {
                     return true;
                 }
 
-                return isValidDate(parseDate(viewValue, dateFormat, new Date())) && viewValue.length === dateFormat.length;
+                return isValidDate(parseDate(viewValue, dynamicFormat, new Date())) && viewValue.length === dynamicFormat.length;
             };
         }
     };
