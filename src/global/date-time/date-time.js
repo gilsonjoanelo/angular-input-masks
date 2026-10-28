@@ -78,7 +78,7 @@ function DateTimeMaskDirective($locale) {
             var dynamicFormat = dateFormat + ' ' + timeFormat;
 
             // Substitui as letras por zeros para a máscara de caracteres do StringMask
-            var maskPattern = dynamicFormat.replace(/[dMyHms]/g, '0');
+            var maskPattern = dynamicFormat.replace(/[DMYHms]/g, '0');
             var dateTimeMask = new StringMask(maskPattern);
             var unformattedLength = maskPattern.replace(/[^0-9]/g, '').length;
 
